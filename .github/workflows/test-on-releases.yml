@@ -1,13 +1,7 @@
-
 on:
   push:
-    # Sequence of patterns matched against refs/heads
-    branches:    
-      - 'teston' 
-      #- 'releases-**/**'
-    # Sequence of patterns matched against refs/tags
-    tags:        
-      - '**-v**'
+    tags:
+    - '*'
 jobs:
   print_context:
     runs-on: ubuntu-latest
