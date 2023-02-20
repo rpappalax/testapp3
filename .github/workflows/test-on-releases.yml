@@ -1,7 +1,7 @@
 on:
   push:
     tags:
-    - '*v-*'
+    - '*-v*'
 jobs:
   print_context:
     runs-on: ubuntu-latest
