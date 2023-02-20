@@ -1,0 +1,18 @@
+
+on:
+  push:
+    # Sequence of patterns matched against refs/heads
+    branches:    
+      - main
+      #- 'releases-**/**'
+    # Sequence of patterns matched against refs/tags
+    tags:        
+      - *-v*
+jobs:
+  print_context:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          EVENT_CONTEXT: ${{ toJSON(github.event) }}
+        run: |
+          echo $EVENT_CONTEXT
