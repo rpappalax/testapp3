@@ -3,8 +3,10 @@ on:
   push:
     branches:
       - teston 
-steps:
-  - name: Checkout
-    uses: actions/checkout@v2
-    with:
-      repository: mozilla-mobile/focus-ios
+jobs:
+  parse_metrics:
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: mozilla-mobile/focus-ios
