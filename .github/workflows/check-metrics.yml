@@ -12,4 +12,4 @@ jobs:
         with:
           repository: mozilla-mobile/focus-ios
       - name: Checkout
-        run: cat blob/main/Blockzilla/metrics.yaml
+        run: cat Blockzilla/metrics.yaml
