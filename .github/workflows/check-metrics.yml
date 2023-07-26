@@ -1,0 +1,10 @@
+# https://github.com/mozilla-mobile/focus-ios/blob/main/Blockzilla/metrics.yaml
+on:
+  push:
+    branches:
+      - teston 
+steps:
+  - name: Checkout
+    uses: actions/checkout@v2
+    with:
+      repository: mozilla-mobile/focus-ios
