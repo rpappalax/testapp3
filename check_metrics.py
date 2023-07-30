@@ -54,7 +54,7 @@ def projects(config):
 """
 
 
-def project(CONFIG_INI, project):
+def project(CONFIG_INI, project_name):
     """ Given a project name, download telemetry yaml, return warn window """
 
     config = configparser.ConfigParser()
@@ -62,8 +62,8 @@ def project(CONFIG_INI, project):
     config.read('check_metrics.ini')
 
     # pull data from a single project
-    url = config.get('focus-ios', 'file')
-    warn = config.get(project, 'WARN_THRESHOLD_DAYS')
+    url = config.get(project_name, 'file')
+    warn = config.get(project_name, 'WARN_THRESHOLD_DAYS')
 
     # download metrics yaml file
     urllib.request.urlretrieve(url, METRICS_FILENAME)
@@ -71,17 +71,21 @@ def project(CONFIG_INI, project):
 
 
 def print_dict(v, prefix=''):
-    if isinstance(v, dict):
-        for k, v2 in v.items():
+
+    # open yaml file contents
+    metrics = filestream(METRICS_FILENAME)
+
+    if isinstance(metrics, dict):
+        for k, v2 in metrics.items():
             p2 = "{}['{}']".format(prefix, k)
             print_dict(v2, p2)
 
-    elif isinstance(v, list):
-        for i, v2 in enumerate(v):
+    elif isinstance(metrics, list):
+        for i, v2 in enumerate(metrics):
             p2 = "{}[{}]".format(prefix, i)
             print_dict(v2, p2)
     else:
-        result = str(v)
+        result = str(metrics)
         #print('{} = {}'.format(prefix, result))
         tmp = []
         if 'expires' in prefix:
@@ -104,13 +108,8 @@ def print_dict(v, prefix=''):
 
 if __name__ == '__main__':
 
-    #config_parse(CONFIG_INI)
     project(CONFIG_INI, 'focus-ios') 
-
-    import sys
-    sys.exit()
-    metrics = filestream(METRICS_FILENAME)
-    already, soon= print_dict(metrics)
+    already, soon = print_dict(metrics)
     print('======')
     print(already)
     print('======')
