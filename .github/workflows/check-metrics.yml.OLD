@@ -1,0 +1,15 @@
+# https://github.com/mozilla-mobile/focus-ios/blob/main/Blockzilla/metrics.yaml
+on:
+  push:
+    branches:
+      - teston 
+jobs:
+  parse_metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: mozilla-mobile/focus-ios
+      - name: Checkout
+        run: cat Blockzilla/metrics.yaml
