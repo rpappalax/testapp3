@@ -24,5 +24,9 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: execute check_metrics script # run main.py
+      - name: execute check_metrics script 
         run: python check_metrics.py
+
+      - name: list files 
+        run: ls -la 
+        shell: bash
