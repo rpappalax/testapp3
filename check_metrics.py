@@ -24,11 +24,11 @@ METRICS_FILENAME = 'metrics.yaml'
 
 
 def filestream(filename):
-	with open(filename, "r") as stream:
-		try:
-			return yaml.safe_load(stream)
-		except yaml.YAMLError as exc:
-			print(f'YAML error: {exc}')
+    with open(filename, "r") as stream:
+        try:
+            return yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            print(f'YAML error: {exc}')
 
 
 def is_date_format(date_input):
@@ -40,18 +40,15 @@ def is_date_format(date_input):
         return False
 
 
-"""
-def projects(config):
-    # traverse all projects one-by-one
-    print(config.sections())
-    #print(config["focus_ios"]["file"])
-    print(x)
-    for section in config.sections():
-        print(section)
-        
-        for item in config.items(section):
-            print(item)
-"""
+#def projects(config):
+#    # traverse all projects one-by-one
+#    print(config.sections())
+#    print(x)
+#    for section in config.sections():
+#        print(section)
+#        
+#        for item in config.items(section):
+#            print(item)
 
 
 def project(CONFIG_INI, project_name):
@@ -70,10 +67,7 @@ def project(CONFIG_INI, project_name):
     return warn
 
 
-def print_dict(v, prefix=''):
-
-    # open yaml file contents
-    metrics = filestream(METRICS_FILENAME)
+def print_dict(metrics, prefix=''):
 
     if isinstance(metrics, dict):
         for k, v2 in metrics.items():
@@ -86,32 +80,33 @@ def print_dict(v, prefix=''):
             print_dict(v2, p2)
     else:
         result = str(metrics)
-        #print('{} = {}'.format(prefix, result))
         tmp = []
         if 'expires' in prefix:
             if is_date_format(result):
                 exp = soon_expiring(result, WARN_THRESHOLD_DAYS)
                 if exp:
-                    print(f'WARN_THRESHOLD_DAYS: {WARN_THRESHOLD_DAYS}: {prefix}: {result}, {exp}')
+                    #print(f'WARN_THRESHOLD_DAYS: {WARN_THRESHOLD_DAYS}: {prefix}: {result}, {exp}')
                     tmp = [prefix, result]
                     if exp <=0:
                         expired_already.append(tmp)
                     elif (exp > 0 and exp <= WARN_THRESHOLD_DAYS):
                         expiring_soon.append(tmp)
                     else:
-                        print('not expiring')
+                        print('not expiring!')
                         
 
-    return expired_already, expiring_soon
-                   
 
 
 if __name__ == '__main__':
 
     project(CONFIG_INI, 'focus-ios') 
-    already, soon = print_dict(metrics)
-    print('======')
-    print(already)
-    print('======')
-    print(soon)
+    # open yaml file contents
+    metrics = filestream(METRICS_FILENAME)
+    print_dict(metrics)
+
+    print('======EXPIRED=====')
+    print(expired_already)
+    print("")
+    print('======EXPIRING=====')
+    print(expiring_soon)
 
