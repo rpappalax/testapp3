@@ -1,0 +1,4 @@
+		{ "type": "section", "text": { "type": "mrkdwn",
+				"text": "telemetry_probe.some_info - expiration: `2022-01-01`"
+			}
+		},

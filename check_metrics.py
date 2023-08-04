@@ -15,7 +15,8 @@ from date_checker import soon_expiring
 
 
 CONFIG_INI = 'check_metrics.ini'
-WARN_THRESHOLD_DAYS = 30
+PAYLOAD_JSON = 'slack-payload.json'
+WARN_THRESHOLD_DAYS = 7
 expired_already = []
 expiring_soon = []
 
@@ -67,17 +68,35 @@ def project(CONFIG_INI, project_name):
     return warn
 
 
-def print_dict(metrics, prefix=''):
+def output_format(metric):
+    tmp = metric.replace("']['", ".")
+    return tmp.replace("'","").replace("]", "").replace("[", "")
+
+
+def output_json_row(name_probe, date_expire, days):
+   
+    prefix = '{ "type": "section", "text": { "type": "mrkdwn", "text": ' 
+    suffix = ' } },'
+    if int(days) == 0:
+        row = f"{name_probe} - expiration: {date_expire} (today)"
+    elif int(days) < 0:
+        days = abs(days)
+        row = f"{name_probe} - expiration: {date_expire} ({days} days ago)"
+    else:
+        row = f"{name_probe} - expiration: {date_expire} (in {days} days)"
+    return f'{prefix} "{row}" {suffix} \n'
+
+def create_probe_lists(metrics, prefix=''):
 
     if isinstance(metrics, dict):
         for k, v2 in metrics.items():
             p2 = "{}['{}']".format(prefix, k)
-            print_dict(v2, p2)
+            create_probe_lists(v2, p2)
 
     elif isinstance(metrics, list):
         for i, v2 in enumerate(metrics):
             p2 = "{}[{}]".format(prefix, i)
-            print_dict(v2, p2)
+            create_probe_lists(v2, p2)
     else:
         result = str(metrics)
         tmp = []
@@ -86,7 +105,8 @@ def print_dict(metrics, prefix=''):
                 exp = soon_expiring(result, WARN_THRESHOLD_DAYS)
                 if exp:
                     #print(f'WARN_THRESHOLD_DAYS: {WARN_THRESHOLD_DAYS}: {prefix}: {result}, {exp}')
-                    tmp = [prefix, result]
+                    #tmp = [prefix, result]
+                    tmp = [prefix, result, exp]
                     if exp <=0:
                         expired_already.append(tmp)
                     elif (exp > 0 and exp <= WARN_THRESHOLD_DAYS):
@@ -95,18 +115,46 @@ def print_dict(metrics, prefix=''):
                         print('not expiring!')
                         
 
+def generate_payload(expired_already, expiring_soon):
+    
+    payload = ""
+    payload += 'header\n '
 
+    for item in expired_already:
+        name_probe = output_format(item[0])
+        date_expire = item[1] 
+        days = item[2]
+        payload +=  output_json_row(name_probe, date_expire, days)
 
-if __name__ == '__main__':
+    payload += '\n   middle  \n'
 
+    for item in expiring_soon:
+        name_probe = output_format(item[0])
+        date_expire = item[1] 
+        days = soon_expiring(item[1], warn_threshold_days=WARN_THRESHOLD_DAYS)
+        payload += output_json_row(name_probe, date_expire, days)
+
+    payload += 'footer'
+
+    with open(PAYLOAD_JSON, 'a+') as f:
+        f.write(payload)
+
+def main():
     project(CONFIG_INI, 'focus-ios') 
-    # open yaml file contents
+    #project(CONFIG_INI, 'firefox-android') 
     metrics = filestream(METRICS_FILENAME)
-    print_dict(metrics)
+    create_probe_lists(metrics)
+    generate_payload(expired_already, expiring_soon)
 
+
+    import pprint
     print('======EXPIRED=====')
-    print(expired_already)
+    #pprint.pprint(expired_already)
     print("")
     print('======EXPIRING=====')
-    print(expiring_soon)
+    #pprint.pprint(expiring_soon)
 
+    
+
+if __name__ == '__main__':
+    main()
